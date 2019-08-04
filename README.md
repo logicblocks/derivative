@@ -3,7 +3,7 @@
 General purpose in place scaffolding and source code rewrite tool.
 
 ```clj
-[io.logicblocks/derivative "0.0.0"]
+[io.logicblocks/derivative "0.0.1-SNAPSHOT"]
 ```
 
 ## Usage
