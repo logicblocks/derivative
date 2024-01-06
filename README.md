@@ -3,16 +3,15 @@
 General purpose in place scaffolding and source code rewrite tool.
 
 ```clj
-[io.logicblocks/derivative "0.0.1-SNAPSHOT"]
+[io.logicblocks/derivative "0.1.0-RC0"]
 ```
 
 ## Usage
 
-FIXME
+TODO: Add usage.
 
 ## License
 
-Copyright © 2019 FIXME
+Copyright © 2024 LogicBlocks Maintainers.
 
-Distributed under the terms of the 
-[MIT License](http://opensource.org/licenses/MIT).
+Distributed under the MIT license.
