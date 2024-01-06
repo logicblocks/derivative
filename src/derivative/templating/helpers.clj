@@ -1,23 +1,23 @@
 (ns derivative.templating.helpers
   (:refer-clojure :exclude [hash])
   (:require
-    [clojure.string :as strings]
-    [clojure.edn :as edn]
-    [camel-snake-kebab.core :as cases]
-    [secure-rand.core :as secure]
-    [hbs.helper :as template])
+   [clojure.string :as strings]
+   [clojure.edn :as edn]
+   [camel-snake-kebab.core :as cases]
+   [secure-rand.core :as secure]
+   [hbs.helper :as template])
   (:import [com.github.jknack.handlebars Options]))
 
 (defprotocol HandlebarsExtendedOptions
   (param [this idx default])
-  (hash [this key default]))
+  (hash [this k default]))
 
 (extend-protocol HandlebarsExtendedOptions
   Options
   (param [this idx default]
     (.param this idx default))
-  (hash [this idx default]
-    (.hash this idx default)))
+  (hash [this k default]
+    (.hash this k default)))
 
 ; strings
 (def snake-case
@@ -64,7 +64,7 @@
             (or (number? context) (string? context))
             context
 
-            (not (empty? (template/block-body options context)))
+            (seq (template/block-body options context))
             (template/block-body options context)
 
             :else
@@ -79,7 +79,7 @@
             (or (number? context) (string? context))
             context
 
-            (not (empty? (template/block-body options context)))
+            (seq (template/block-body options context))
             (template/block-body options context)
 
             :else
@@ -118,14 +118,14 @@
                   (when (:uppers? requirements) uppers)
                   (when (:numbers? requirements) numbers)
                   (when (:symbols? requirements) *password-symbols*)))]
-    (take quantity (repeatedly #(secure/rand-nth chars)))))
+    (repeatedly quantity (fn* [] (secure/rand-nth chars)))))
 
-(defn- randomised-string [chars]
-  (strings/join (shuffle chars)))
+(defn- randomised-string [characters]
+  (strings/join (shuffle characters)))
 
-(defn- rand-password [length & rest]
-  (let [reqs (apply char-requirements rest)
-        rest (apply char-extras (concat [(- length (count reqs))] rest))]
+(defn- rand-password [length & others]
+  (let [reqs (apply char-requirements others)
+        rest (apply char-extras (concat [(- length (count reqs))] others))]
     (randomised-string (concat reqs rest))))
 
 (def random-password

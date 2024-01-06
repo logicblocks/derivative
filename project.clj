@@ -19,7 +19,7 @@
 
   :dependencies [[hbs "1.0.3"]
                  [camel-snake-kebab "0.4.3"]
-                 [io.logicblocks/pathological "0.1.1"]
+                 [io.logicblocks/pathological "0.1.22-RC2"]
                  [secure-rand "0.1"]]
 
   :profiles
@@ -27,6 +27,9 @@
   ^{:pom-scope :test}
   {:dependencies
    [[org.clojure/clojure "1.11.1"]
+
+    [com.google.jimfs/jimfs "1.3.0"]
+    [org.mockito/mockito-core "5.4.0"]
 
     [eftest "0.6.0"]]}
 

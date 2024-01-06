@@ -1,8 +1,8 @@
 (ns derivative.transformations.path.find-and-replace
   (:require
-    [pathological.paths :as paths]
+   [pathological.paths :as paths]
 
-    [derivative.transformations.content.find-and-replace :as content]))
+   [derivative.transformations.content.find-and-replace :as content]))
 
 (defn find-and-replace [configuration]
   (let [find-and-replacer (content/find-and-replace configuration)]

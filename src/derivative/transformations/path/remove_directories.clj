@@ -1,6 +1,6 @@
 (ns derivative.transformations.path.remove-directories
   (:require
-    [pathological.paths :as paths]))
+   [pathological.paths :as paths]))
 
 (defn remove-directories [{:keys [count]}]
   (fn [path]

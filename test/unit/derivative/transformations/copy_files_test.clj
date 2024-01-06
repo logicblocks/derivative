@@ -1,22 +1,19 @@
 (ns derivative.transformations.copy-files-test
   (:require
-    [clojure.test :refer :all]
+   [clojure.test :refer :all]
 
-    [pathological.files :as f]
-    [pathological.paths :as p]
-    [pathological.testing
-     :refer [random-file-system-name
-             new-in-memory-file-system
-             unix-configuration]]
+   [pathological.files :as f]
+   [pathological.paths :as p]
+   [pathological.testing
+    :refer [new-unix-in-memory-file-system]]
 
-    [derivative.transformations.core :as transformations]
-    [derivative.transformations.copy-files]))
+   [derivative.transformations.core :as transformations]
+   [derivative.transformations.copy-files]))
 
 (deftest copies-one-file-to-another-file
   (let [file-system
-        (new-in-memory-file-system
-          (random-file-system-name)
-          (unix-configuration)
+        (new-unix-in-memory-file-system
+          :contents
           [[:source
             [:test.rb
              {:content
@@ -40,9 +37,8 @@
 
 (deftest copies-one-file-to-directory
   (let [file-system
-        (new-in-memory-file-system
-          (random-file-system-name)
-          (unix-configuration)
+        (new-unix-in-memory-file-system
+          :contents
           [[:source
             [:test.rb
              {:content
@@ -67,9 +63,8 @@
 
 (deftest copies-directory-of-files-to-directory
   (let [file-system
-        (new-in-memory-file-system
-          (random-file-system-name)
-          (unix-configuration)
+        (new-unix-in-memory-file-system
+          :contents
           [[:source
             [:file1.rb {:content ["def thing_doer(arg1, arg2)"
                                   "  arg1 * arg2"
@@ -96,9 +91,8 @@
 
 (deftest copies-all-files-matching-glob-to-directory
   (let [file-system
-        (new-in-memory-file-system
-          (random-file-system-name)
-          (unix-configuration)
+        (new-unix-in-memory-file-system
+          :contents
           [[:source
             [:file1.rb {:content ["def thing_doer(arg1, arg2)"
                                   "  arg1 * arg2"
@@ -127,9 +121,8 @@
 
 (deftest allows-directories-to-be-removed
   (let [file-system
-        (new-in-memory-file-system
-          (random-file-system-name)
-          (unix-configuration)
+        (new-unix-in-memory-file-system
+          :contents
           [[:source
             [:file1.rb {:content ["def thing_doer(arg1, arg2)"
                                   "  arg1 * arg2"
@@ -141,10 +134,10 @@
         transformation
         {:type :copy-files
          :configuration
-               {:from      "directory:source/"
-                :to        "directory:target/"
-                :transform [{:type          :remove-directories
-                             :configuration {:count 1}}]}}]
+         {:from      "directory:source/"
+          :to        "directory:target/"
+          :transform [{:type          :remove-directories
+                       :configuration {:count 1}}]}}]
     (transformations/apply-transformation transformation
       {:file-system file-system})
 
@@ -159,9 +152,8 @@
 
 (deftest allows-find-and-replace-rename-during-copy
   (let [file-system
-        (new-in-memory-file-system
-          (random-file-system-name)
-          (unix-configuration)
+        (new-unix-in-memory-file-system
+          :contents
           [[:directory1
             [:directory2
              [:file1.rb {:content ["def thing_doer(arg1, arg2)"
@@ -174,11 +166,11 @@
         transformation
         {:type :copy-files
          :configuration
-               {:from      "directory:directory1/"
-                :to        "directory:directory3/"
-                :transform [{:type          :find-and-replace
-                             :configuration {:find    "string:directory2"
-                                             :replace "string:directory4"}}]}}]
+         {:from      "directory:directory1/"
+          :to        "directory:directory3/"
+          :transform [{:type          :find-and-replace
+                       :configuration {:find    "string:directory2"
+                                       :replace "string:directory4"}}]}}]
     (transformations/apply-transformation transformation
       {:file-system file-system})
 
@@ -197,9 +189,8 @@
 
 (deftest allows-variable-interpolation-in-path-during-copy
   (let [file-system
-        (new-in-memory-file-system
-          (random-file-system-name)
-          (unix-configuration)
+        (new-unix-in-memory-file-system
+          :contents
           [[:directory1
             [:directory2
              [:file1.rb {:content ["def thing_doer(arg1, arg2)"
@@ -212,12 +203,12 @@
         transformation
         {:type :copy-files
          :configuration
-               {:from      "directory:directory1/"
-                :to        "directory:directory3/"
-                :transform [{:type :find-and-replace
-                             :configuration
-                                   {:find    "string:directory2"
-                                    :replace "string:{{var.new_dir}}"}}]}}]
+         {:from      "directory:directory1/"
+          :to        "directory:directory3/"
+          :transform [{:type :find-and-replace
+                       :configuration
+                       {:find    "string:directory2"
+                        :replace "string:{{var.new_dir}}"}}]}}]
     (transformations/apply-transformation transformation
       {:file-system file-system
        :vars        {:new_dir "new-directory"}})
@@ -237,9 +228,8 @@
 
 (deftest allows-regular-expression-match-and-replacement-in-path-during-copy
   (let [file-system
-        (new-in-memory-file-system
-          (random-file-system-name)
-          (unix-configuration)
+        (new-unix-in-memory-file-system
+          :contents
           [[:directory1
             [:directory2
              [:file1.rb {:content ["def thing_doer(arg1, arg2)"
@@ -252,12 +242,12 @@
         transformation
         {:type :copy-files
          :configuration
-               {:from      "directory:directory1/"
-                :to        "directory:directory3/"
-                :transform [{:type :find-and-replace
-                             :configuration
-                                   {:find    "regex:file(\\d+)"
-                                    :replace "string:thing{{match.$1}}"}}]}}]
+         {:from      "directory:directory1/"
+          :to        "directory:directory3/"
+          :transform [{:type :find-and-replace
+                       :configuration
+                       {:find    "regex:file(\\d+)"
+                        :replace "string:thing{{match.$1}}"}}]}}]
     (transformations/apply-transformation transformation
       {:file-system file-system})
 
@@ -276,9 +266,8 @@
 
 (deftest allows-variables-to-be-interpolated-into-finders-for-path-when-string
   (let [file-system
-        (new-in-memory-file-system
-          (random-file-system-name)
-          (unix-configuration)
+        (new-unix-in-memory-file-system
+          :contents
           [[:directory1
             [:directory2
              [:file1.rb {:content ["def thing_doer(arg1, arg2)"
@@ -291,12 +280,12 @@
         transformation
         {:type :copy-files
          :configuration
-               {:from      "directory:directory1/"
-                :to        "directory:directory3/"
-                :transform [{:type :find-and-replace
-                             :configuration
-                                   {:find    "string:{{var.old_directory}}"
-                                    :replace "string:new-directory"}}]}}]
+         {:from      "directory:directory1/"
+          :to        "directory:directory3/"
+          :transform [{:type :find-and-replace
+                       :configuration
+                       {:find    "string:{{var.old_directory}}"
+                        :replace "string:new-directory"}}]}}]
     (transformations/apply-transformation transformation
       {:file-system file-system
        :vars        {:old_directory "directory2"}})
@@ -316,9 +305,8 @@
 
 (deftest allows-variables-to-be-interpolated-into-finders-for-path-when-regex
   (let [file-system
-        (new-in-memory-file-system
-          (random-file-system-name)
-          (unix-configuration)
+        (new-unix-in-memory-file-system
+          :contents
           [[:directory1
             [:directory2
              [:file1.rb {:content ["def thing_doer(arg1, arg2)"
@@ -331,12 +319,12 @@
         transformation
         {:type :copy-files
          :configuration
-               {:from      "directory:directory1/"
-                :to        "directory:directory3/"
-                :transform [{:type :find-and-replace
-                             :configuration
-                                   {:find    "regex:{{var.old_file}}(\\d+)"
-                                    :replace "string:thing{{match.$1}}"}}]}}]
+         {:from      "directory:directory1/"
+          :to        "directory:directory3/"
+          :transform [{:type :find-and-replace
+                       :configuration
+                       {:find    "regex:{{var.old_file}}(\\d+)"
+                        :replace "string:thing{{match.$1}}"}}]}}]
     (transformations/apply-transformation transformation
       {:file-system file-system
        :vars        {:old_file "file"}})
@@ -356,9 +344,8 @@
 
 (deftest provides-functions-to-manipulate-replacements-for-path
   (let [file-system
-        (new-in-memory-file-system
-          (random-file-system-name)
-          (unix-configuration)
+        (new-unix-in-memory-file-system
+          :contents
           [[:directory1
             [:directory2
              [:file1.rb {:content ["def thing_doer(arg1, arg2)"
@@ -371,16 +358,16 @@
         transformation
         {:type :copy-files
          :configuration
-               {:from "directory:directory1/"
-                :to   "directory:directory3/"
-                :transform
-                      [{:type :find-and-replace
-                        :configuration
-                              {:find    "string:file"
-                               :replace (str "string:"
-                                          "{{#snake_case}}"
-                                          "{{var.new_file}}"
-                                          "{{/snake_case}}")}}]}}]
+         {:from "directory:directory1/"
+          :to   "directory:directory3/"
+          :transform
+          [{:type :find-and-replace
+            :configuration
+            {:find    "string:file"
+             :replace (str "string:"
+                        "{{#snake_case}}"
+                        "{{var.new_file}}"
+                        "{{/snake_case}}")}}]}}]
     (transformations/apply-transformation transformation
       {:file-system file-system
        :vars        {:new_file "new-file"}})
@@ -400,9 +387,8 @@
 
 (deftest provides-functions-to-manipulate-finders-for-path
   (let [file-system
-        (new-in-memory-file-system
-          (random-file-system-name)
-          (unix-configuration)
+        (new-unix-in-memory-file-system
+          :contents
           [[:directory1
             [:directory2
              [:old_file1.rb {:content ["def thing_doer(arg1, arg2)"
@@ -415,16 +401,16 @@
         transformation
         {:type :copy-files
          :configuration
-               {:from "directory:directory1/"
-                :to   "directory:directory3/"
-                :transform
-                      [{:type :find-and-replace
-                        :configuration
-                              {:find    (str "string:"
-                                          "{{#snake_case}}"
-                                          "{{var.old_file}}"
-                                          "{{/snake_case}}")
-                               :replace "string:new-file"}}]}}]
+         {:from "directory:directory1/"
+          :to   "directory:directory3/"
+          :transform
+          [{:type :find-and-replace
+            :configuration
+            {:find    (str "string:"
+                        "{{#snake_case}}"
+                        "{{var.old_file}}"
+                        "{{/snake_case}}")
+             :replace "string:new-file"}}]}}]
     (transformations/apply-transformation transformation
       {:file-system file-system
        :vars        {:old_file "old-file"}})
@@ -444,9 +430,8 @@
 
 (deftest applies-many-path-transforms-in-order
   (let [file-system
-        (new-in-memory-file-system
-          (random-file-system-name)
-          (unix-configuration)
+        (new-unix-in-memory-file-system
+          :contents
           [[:directory1
             [:directory2
              [:file1.rb {:content ["def thing_doer(arg1, arg2)"
@@ -459,13 +444,13 @@
         transformation
         {:type :copy-files
          :configuration
-               {:from      "directory:directory1/"
-                :to        "directory:directory3/"
-                :transform [{:type          :remove-directories
-                             :configuration {:count 2}}
-                            {:type          :find-and-replace
-                             :configuration {:find    "string:.rb"
-                                             :replace "string:.ruby"}}]}}]
+         {:from      "directory:directory1/"
+          :to        "directory:directory3/"
+          :transform [{:type          :remove-directories
+                       :configuration {:count 2}}
+                      {:type          :find-and-replace
+                       :configuration {:find    "string:.rb"
+                                       :replace "string:.ruby"}}]}}]
     (transformations/apply-transformation transformation
       {:file-system file-system})
 

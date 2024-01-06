@@ -1,9 +1,9 @@
 (ns derivative.templating.core
   (:require
-    [hbs.core :as templates]
-    [hbs.helper :as template-helpers]
+   [hbs.core :as templates]
+   [hbs.helper :as template-helpers]
 
-    [derivative.templating.helpers :as template-helper-fns]))
+   [derivative.templating.helpers :as template-helper-fns]))
 
 (defn registry [& {:as helpers}]
   (reduce

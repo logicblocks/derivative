@@ -1,8 +1,8 @@
 (ns derivative.specs.core-test
   (:require
-    [clojure.test :refer :all]
+   [clojure.test :refer :all]
 
-    [derivative.specs.core :as s]))
+   [derivative.specs.core :as s]))
 
 (deftest syntax
   (is (= :file (s/syntax "file:some/important/file.txt")))

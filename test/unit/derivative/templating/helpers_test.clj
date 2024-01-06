@@ -1,14 +1,14 @@
 (ns derivative.templating.helpers-test
   (:require
-    [clojure.test :refer :all]
-    [clojure.string :as string]
+   [clojure.test :refer :all]
+   [clojure.string :as string]
 
-    [hbs.core :as tpl]
-    [hbs.helper :as tpl-helper]
+   [hbs.core :as tpl]
+   [hbs.helper :as tpl-helper]
 
-    [derivative.templating.helpers :as tpl-helper-fns])
+   [derivative.templating.helpers :as tpl-helper-fns])
   (:import
-    [com.github.jknack.handlebars HandlebarsException]))
+   [com.github.jknack.handlebars HandlebarsException]))
 
 (def prepend
   (tpl-helper/helper [context options]

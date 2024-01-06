@@ -1,13 +1,13 @@
 (ns derivative.transformations.find-and-replace
   (:require
-    [pathological.paths :as paths]
-    [pathological.file-systems :as file-systems]
+   [pathological.paths :as paths]
+   [pathological.file-systems :as file-systems]
 
-    [derivative.specs.paths :as path-specs]
-    [derivative.transformations.core
-     :refer [apply-transformation]]
-    [derivative.transformations.content.find-and-replace
-     :refer [find-and-replace]]))
+   [derivative.specs.paths :as path-specs]
+   [derivative.transformations.core
+    :refer [apply-transformation]]
+   [derivative.transformations.content.find-and-replace
+    :refer [find-and-replace]]))
 
 (defmethod apply-transformation :find-and-replace
   [{:keys [configuration]}

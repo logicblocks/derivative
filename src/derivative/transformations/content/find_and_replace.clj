@@ -1,13 +1,13 @@
 (ns derivative.transformations.content.find-and-replace
   (:require
-    [clojure.string :as string]
+   [clojure.string :as string]
 
-    [derivative.specs.core :as specs]
-    [derivative.specs.content :as content-specs]
-    [derivative.templating.core :as templates]
-    [derivative.transformations.core :refer [apply-transformation]])
+   [derivative.specs.core :as specs]
+   [derivative.specs.content :as content-specs]
+   [derivative.templating.core :as templates]
+   [derivative.transformations.core :refer [apply-transformation]])
   (:import
-    [java.util.regex Pattern]))
+   [java.util.regex Pattern]))
 
 (defn with-match-map [context match]
   (assoc context

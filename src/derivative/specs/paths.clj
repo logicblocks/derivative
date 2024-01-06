@@ -1,9 +1,9 @@
 (ns derivative.specs.paths
   (:require
-    [pathological.paths :as paths]
-    [pathological.files :as files]
+   [pathological.paths :as paths]
+   [pathological.files :as files]
 
-    [derivative.specs.core :as specs]))
+   [derivative.specs.core :as specs]))
 
 (def file-syntax? #(specs/syntax? % :file))
 (def directory-syntax? #(specs/syntax? % :directory))

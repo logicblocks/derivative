@@ -1,19 +1,18 @@
 (ns derivative.transformations.copy-files
   (:require
-    [pathological.paths :as paths]
-    [pathological.files :as files]
-    [pathological.file-systems :as file-systems]
+   [pathological.paths :as paths]
+   [pathological.files :as files]
+   [pathological.file-systems :as file-systems]
 
-    [derivative.specs.paths :as path-specs]
+   [derivative.specs.paths :as path-specs]
 
-    [derivative.transformations.core :refer [apply-transformation]]
-    [derivative.transformations.path.remove-directories
-     :refer [remove-directories]]
-    [derivative.transformations.path.find-and-replace
-     :refer [find-and-replace]]))
+   [derivative.transformations.core :refer [apply-transformation]]
+   [derivative.transformations.path.remove-directories
+    :refer [remove-directories]]
+   [derivative.transformations.path.find-and-replace
+    :refer [find-and-replace]]))
 
-(defmulti ->transformation
-  (fn [transform] (:type transform)))
+(defmulti ->transformation :type)
 
 (defmethod ->transformation :remove-directories
   [{:keys [configuration]}]

@@ -1,21 +1,19 @@
 (ns derivative.specs.paths-test
   (:refer-clojure :exclude [resolve])
   (:require
-    [clojure.test :refer :all]
+   [clojure.test :refer :all]
 
-    [pathological.paths :as p]
+   [pathological.paths :as p]
 
-    [pathological.testing
-     :refer [random-file-system-name
-             new-in-memory-file-system
-             unix-configuration]]
+   [pathological.testing
+    :refer [new-unix-in-memory-file-system]]
 
-    [derivative.specs.paths :as ps]))
+   [derivative.specs.paths :as ps]))
 
 (deftest resolve-path
   (testing "returns a path for the specified file when syntax is file"
     (let [file-system
-          (new-in-memory-file-system (random-file-system-name))
+          (new-unix-in-memory-file-system)
 
           base-path
           (p/path file-system "work")]
@@ -28,7 +26,7 @@
 
   (testing "ignores additional paths when syntax is file"
     (let [file-system
-          (new-in-memory-file-system (random-file-system-name))
+          (new-unix-in-memory-file-system)
 
           base-path
           (p/path file-system "work")]
@@ -48,7 +46,7 @@
 
   (testing "returns a path for the specified directory when syntax is directory"
     (let [file-system
-          (new-in-memory-file-system (random-file-system-name))
+          (new-unix-in-memory-file-system)
 
           base-path
           (p/path file-system "work")]
@@ -62,7 +60,7 @@
 
   (testing "appends additional paths when syntax is directory"
     (let [file-system
-          (new-in-memory-file-system (random-file-system-name))
+          (new-unix-in-memory-file-system)
 
           base-path
           (p/path file-system "work")]
@@ -82,7 +80,7 @@
 
   (testing "throws when syntax is glob"
     (let [file-system
-          (new-in-memory-file-system (random-file-system-name))
+          (new-unix-in-memory-file-system)
 
           base-path
           (p/path file-system ".")]
@@ -92,7 +90,7 @@
 
   (testing "throws when syntax is regex"
     (let [file-system
-          (new-in-memory-file-system (random-file-system-name))
+          (new-unix-in-memory-file-system)
 
           base-path
           (p/path file-system ".")]
@@ -103,7 +101,7 @@
 (deftest expand-paths
   (testing "returns a single path when syntax is file"
     (let [file-system
-          (new-in-memory-file-system (random-file-system-name))
+          (new-unix-in-memory-file-system)
 
           base-path
           (p/path file-system "work")]
@@ -116,10 +114,8 @@
 
   (testing "returns all paths in a directory when syntax is directory"
     (let [file-system
-          (new-in-memory-file-system
-            (random-file-system-name)
-            (unix-configuration
-              :working-directory "/base-directory-1")
+          (new-unix-in-memory-file-system
+            :contents
             [[:base-directory-1
               [:work
                [:directory-1
@@ -137,7 +133,7 @@
                 [:file-8.rb {:type :file}]]]]])
 
           base-path
-          (p/path file-system "work")]
+          (p/path file-system "base-directory-1/work")]
       (is (= [(p/path base-path "directory-1")
               (p/path base-path "directory-1/file-1.rb")
               (p/path base-path "directory-1/file-2.txt")
@@ -167,13 +163,11 @@
               "directory:/base-directory-2/directory-2")))))
 
   (testing
-    (str "returns all matching paths relative to the base directory "
-      "when syntax is glob")
+   (str "returns all matching paths relative to the base directory "
+     "when syntax is glob")
     (let [file-system
-          (new-in-memory-file-system
-            (random-file-system-name)
-            (unix-configuration
-              :working-directory "/base-directory-1")
+          (new-unix-in-memory-file-system
+            :contents
             [[:base-directory-1
               [:directory-1
                [:file-1.rb {:type :file}]
@@ -190,25 +184,30 @@
                 [:file-8.rb {:type :file}]]]]])
 
           base-path
-          (p/path file-system ".")]
-      (is (= [(p/path file-system "./directory-1/file-1.rb")
-              (p/path file-system "./directory-1/file-2.txt")
-              (p/path file-system "./directory-1/subdirectory-1/file-3.txt")
-              (p/path file-system "./directory-1/subdirectory-1/file-4.rb")]
+          (p/path file-system "./base-directory-1")]
+      (is (= [(p/path file-system
+                "./base-directory-1/directory-1/file-1.rb")
+              (p/path file-system
+                "./base-directory-1/directory-1/file-2.txt")
+              (p/path file-system
+                "./base-directory-1/directory-1/subdirectory-1/file-3.txt")
+              (p/path file-system
+                "./base-directory-1/directory-1/subdirectory-1/file-4.rb")]
             (ps/expand-paths base-path "glob:**directory-1**file*")))
 
-      (is (= [(p/path file-system "./directory-1/file-2.txt")
-              (p/path file-system "./directory-1/subdirectory-1/file-3.txt")]
-            (ps/expand-paths base-path "glob:./directory-1/**file*.txt")))))
+      (is (= [(p/path file-system
+                "./base-directory-1/directory-1/file-2.txt")
+              (p/path file-system
+                "./base-directory-1/directory-1/subdirectory-1/file-3.txt")]
+            (ps/expand-paths base-path
+              "glob:./base-directory-1/directory-1/**file*.txt")))))
 
   (testing
-    (str "returns all matching paths relative to the base directory "
-      "when syntax is regex")
+   (str "returns all matching paths relative to the base directory "
+     "when syntax is regex")
     (let [file-system
-          (new-in-memory-file-system
-            (random-file-system-name)
-            (unix-configuration
-              :working-directory "/base-directory-1")
+          (new-unix-in-memory-file-system
+            :contents
             [[:base-directory-1
               [:directory-1
                [:file-1.rb {:type :file}]
@@ -225,13 +224,19 @@
                 [:file-8.rb {:type :file}]]]]])
 
           base-path
-          (p/path file-system ".")]
-      (is (= [(p/path file-system "./directory-1/file-1.rb")
-              (p/path file-system "./directory-1/file-2.txt")
-              (p/path file-system "./directory-1/subdirectory-1/file-3.txt")
-              (p/path file-system "./directory-1/subdirectory-1/file-4.rb")]
+          (p/path file-system "./base-directory-1")]
+      (is (= [(p/path file-system
+                "./base-directory-1/directory-1/file-1.rb")
+              (p/path file-system
+                "./base-directory-1/directory-1/file-2.txt")
+              (p/path file-system
+                "./base-directory-1/directory-1/subdirectory-1/file-3.txt")
+              (p/path file-system
+                "./base-directory-1/directory-1/subdirectory-1/file-4.rb")]
             (ps/expand-paths base-path "regex:.*file.*")))
 
-      (is (= [(p/path file-system "./directory-1/file-2.txt")
-              (p/path file-system "./directory-1/subdirectory-1/file-3.txt")]
+      (is (= [(p/path file-system
+                "./base-directory-1/directory-1/file-2.txt")
+              (p/path file-system
+                "./base-directory-1/directory-1/subdirectory-1/file-3.txt")]
             (ps/expand-paths base-path "regex:\\.\\/.*file.*\\.txt"))))))

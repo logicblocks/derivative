@@ -1,8 +1,8 @@
 (ns derivative.core
   (:refer-clojure :exclude [derive])
   (:require
-    [derivative.transformations.core :refer [apply-transformation]]
-    [derivative.transformations.find-and-replace]))
+   [derivative.transformations.core :refer [apply-transformation]]
+   [derivative.transformations.find-and-replace]))
 
 (defn derive [pipeline options]
   (let [transformation (first pipeline)]
