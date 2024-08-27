@@ -1,4 +1,4 @@
-(defproject io.logicblocks/derivative "0.1.0-RC2"
+(defproject io.logicblocks/derivative "0.1.0-RC3"
   :description "General purpose in place scaffolding and source code rewrite tool."
   :url "https://github.com/logicblocks/derivative"
 
